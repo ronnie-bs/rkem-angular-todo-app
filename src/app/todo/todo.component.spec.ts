@@ -1,10 +1,10 @@
-import { TestBed, async, ComponentFixture } from '@angular/core/testing';
+import { TestBed, async, ComponentFixture, tick, fakeAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { TodoComponent } from './todo.component';
 
 describe('TodoComponent', () => {
     let fixture: ComponentFixture<TodoComponent>;
-    let component: TodoComponent;
+    let todoComponent: TodoComponent;
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
@@ -16,33 +16,46 @@ describe('TodoComponent', () => {
             ]
         }).compileComponents().then(() => {
             fixture = TestBed.createComponent(TodoComponent);
-            component = fixture.componentInstance;
+            todoComponent = fixture.componentInstance;
         });
     }));
 
     it('should create the todo component', () => {
-        expect(component).toBeTruthy();
+        expect(todoComponent).toBeTruthy();
     });
 
     it('should call onAddTodoText() when Add button clicked', () => {
-        const addButtonHandlerSpy = spyOn(component, 'onAddTodoText');
-        const addButton = fixture.debugElement.nativeElement.querySelector('button#addButton');
-        addButton.click();
+        const addButtonHandlerSpy = spyOn(todoComponent, 'onAddTodoText');
+        const addButtonEl = fixture.debugElement.nativeElement.querySelector('button#addButton');
+        addButtonEl.click();
         expect(addButtonHandlerSpy).toHaveBeenCalled();
     });
 
     it('should call onAddTodoText() when todoText Input keyup Enter', () => {
-        const addButtonHandlerSpy = spyOn(component, 'onAddTodoText');
-        const todoTextInput = fixture.debugElement.nativeElement.querySelector('input#todoText');
+        const addButtonHandlerSpy = spyOn(todoComponent, 'onAddTodoText');
+        const todoTextInputEl = fixture.debugElement.nativeElement.querySelector('input#todoText');
         const event = new KeyboardEvent('keyup', { key: 'Enter' });
-        todoTextInput.dispatchEvent(event);
+        todoTextInputEl.dispatchEvent(event);
         expect(addButtonHandlerSpy).toHaveBeenCalled();
     });
 
+    it('should add a new todo item to the list when Add button clicked', () => {
+        fixture.detectChanges();
+
+        const testTodoItemText = 'Test Todo Item';
+        const todoTextInputEl = fixture.debugElement.nativeElement.querySelector('input#todoText');
+        todoTextInputEl.value = testTodoItemText;
+        todoTextInputEl.dispatchEvent(new Event('input'));
+
+        const addButtonEl = fixture.debugElement.nativeElement.querySelector('button#addButton');
+        addButtonEl.click();
+        expect(todoComponent.todoList.map(item => item.text)).toContain(testTodoItemText);
+    });
+
     it('should call onClearTodoText() when Clear button clicked', () => {
-        const clearButtonHandlerSpy = spyOn(component, 'onClearTodoText');
-        const clearButton = fixture.debugElement.nativeElement.querySelector('button#clearButton');
-        clearButton.click();
+        const clearButtonHandlerSpy = spyOn(todoComponent, 'onClearTodoText');
+        const clearButtonEl = fixture.debugElement.nativeElement.querySelector('button#clearButton');
+        clearButtonEl.click();
         expect(clearButtonHandlerSpy).toHaveBeenCalled();
     });
 });
